@@ -1,0 +1,33 @@
+/* NetScript 1.0 */
+
+function weasel(hostname) {
+	print("Scanning server " + hostname);
+	var servers = scan(hostname);
+	for (var i = 0; i < servers.length; i++) {
+		servername = servers[i];
+		if (serverExists(servername)) {
+			var min_ports = getServerNumPortsRequired(servername);
+			if (!hasRootAccess(servername) && min_ports <= 2) {
+				print("Server " + servername + " found has not root access");
+
+				print("Server " + servername + " has a minimum port security of " + min_ports);
+				if (min_ports >= 1) {
+					print('Running BruteSSH on server ' + servername);
+					brutessh(servername);
+					if (min_ports == 2) {
+						print('Running FTPCrack on server ' + servername);
+						ftpcrack(servername);
+					}
+				}
+				print('Nuking server ' + servername);
+				nuke(servername);
+				if (hasRootAccess(servername)) { 'GAINED ROOT ACCESS ON SERVER' + servername };
+			}
+			else if (min_ports > 2) { "Server " + servername + "'s port security is too high" }
+			else { print("Server " + servername + " already has root access...") }
+		}
+		else { print("Server " + servername + " doesn't exist?"); }
+	}
+}
+
+weasel(getHostname());
